@@ -1,0 +1,69 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2024 Eideal
+ */
+
+/ {
+};
+
+&csi1_bridge {
+        status = "disabled";
+        /delete-node/ port;
+};
+
+&i2c2 {
+        /delete-node/ adv7535@3d;
+
+        lt9611_bridge: lt9611@3b {
+                compatible = "lontium,lt9611-eideal";
+                reg = <0x3b>;
+                pinctrl-names = "default";
+                pinctrl-0 = <&pinctrl_i2c2_lt9611>;
+		reset-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+                interrupt-parent = <&gpio1>;
+                interrupts = <7 IRQ_TYPE_LEVEL_LOW>;
+
+                status = "okay";
+
+                port {
+                        lt9611_from_dsim: endpoint {
+                                remote-endpoint = <&dsim_to_lt9611>;
+                        };
+                };
+        };
+};
+
+&i2c3 {
+        /delete-node/ ov5640_mipi@3c;
+};
+
+&mipi_dsi {
+        /delete-node/ port@1;
+
+	port@1 {
+               dsim_to_lt9611: endpoint {
+                       remote-endpoint = <&lt9611_from_dsim>;
+                        attach-bridge;
+               };
+       };
+
+};
+
+&mipi_csi_1 {
+        status = "disabled";
+        /delete-node/ port;
+};
+
+&iomuxc {
+	/delete-node/ csi_pwn_grp;
+	/delete-node/ csi_rst_grp;
+	/delete-node/ synaptics_dsx_iogrp;
+
+	pinctrl_i2c2_lt9611: i2clt9611grp {
+                fsl,pins = <
+			MX8MM_IOMUXC_GPIO1_IO07_GPIO1_IO7               0x80
+                        MX8MM_IOMUXC_GPIO1_IO08_GPIO1_IO8               0x80
+                >;
+        };
+};
+

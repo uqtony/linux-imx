@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Copyright 2024 Eideal
+ */
+
+/dts-v1/;
+
+#include "eideal-imx8mm.dts"
+#include "eideal-imx8mm-lt9611.dtsi"
+
+/ {
+	model = "FSL Eideal i.MX8MM with Lontium 9611";
+	compatible = "fsl,eideal-imx8mm-lt9611", "fsl,imx8mm";
+};
