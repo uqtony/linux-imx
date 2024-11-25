@@ -13,6 +13,7 @@
 
 &i2c2 {
         /delete-node/ adv7535@3d;
+        /delete-node/ lt9211c@2d;
 
         lt9611_bridge: lt9611@3b {
                 compatible = "lontium,lt9611-eideal";

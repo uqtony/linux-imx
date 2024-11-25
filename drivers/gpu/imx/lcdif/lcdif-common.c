@@ -322,6 +322,14 @@ int lcdif_set_pix_fmt(struct lcdif_soc *lcdif, u32 format)
 			writel(CTRL2_ODD_LINE_PATTERN(0x5) |
 			       CTRL2_EVEN_LINE_PATTERN(0x5),
 			       lcdif->base + LCDIF_CTRL2 + REG_SET);
+                /* 'RGB' order to 'BRG' */
+                if (format == DRM_FORMAT_ARGB8888 ||
+                    format == DRM_FORMAT_XRGB8888){
+                        writel(CTRL2_ODD_LINE_PATTERN(0x4) |
+                               CTRL2_EVEN_LINE_PATTERN(0x4),
+                               lcdif->base + LCDIF_CTRL2 + REG_SET);
+			dev_info(lcdif->dev, "todo RGB line_pattern change to BRG\n");
+		}
 		break;
 	default:
 		dev_err(lcdif->dev, "unsupported pixel format: %p4cc\n",

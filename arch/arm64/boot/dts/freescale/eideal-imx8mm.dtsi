@@ -246,16 +246,6 @@
 	cpu-supply = <&buck2_reg>;
 };
 
-&csi1_bridge {
-	fsl,mipi-mode;
-	status = "okay";
-	port {
-		csi1_ep: endpoint {
-			remote-endpoint = <&csi1_mipi_ep>;
-		};
-	};
-};
-
 &ecspi2 {
 	#address-cells = <1>;
 	#size-cells = <0>;
@@ -417,24 +407,25 @@
 	pinctrl-0 = <&pinctrl_i2c2>;
 	status = "okay";
 
-	adv_bridge: adv7535@3d {
-		compatible = "adi,adv7535";
-		reg = <0x3d>;
-		adi,addr-cec = <0x3b>;
-		adi,dsi-lanes = <4>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_i2c2_synaptics_dsx_io>;
-		interrupt-parent = <&gpio1>;
-		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
-
-		status = "okay";
-
-		port {
-			adv7535_from_dsim: endpoint {
-				remote-endpoint = <&dsim_to_adv7535>;
-			};
-		};
-	};
+        lt9211c_bridge: lt9211c@2d {
+                compatible = "lontium,lt9211c";
+                reg = <0x2d>;
+                pinctrl-names = "default";
+                pinctrl-0 = <&pinctrl_dsi_rst>;
+                clocks = <&clk IMX8MM_CLK_CLKO1>;
+                clock-names = "dsi_mclk";
+                assigned-clocks = <&clk IMX8MM_CLK_CLKO1>;
+                assigned-clock-parents = <&clk IMX8MM_CLK_24M>;
+                assigned-clock-rates = <24000000>;
+                en-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
+                rst-gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
+                status = "okay";
+                port {
+                        lt9211c_from_dsim: endpoint {
+                                remote-endpoint = <&dsim_to_lt9211c>;
+                        };
+                };
+        };
 };
 
 &i2c3 {
@@ -487,54 +478,10 @@
 		DVDD-supply = <&reg_audio_board>;
 		dsd-path = <1>;
 	};
-
-	ov5640_mipi: ov5640_mipi@3c {
-		compatible = "ovti,ov5640_mipi";
-		reg = <0x3c>;
-		status = "okay";
-		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_csi_pwn>, <&pinctrl_csi_rst>;
-		clocks = <&clk IMX8MM_CLK_CLKO1>;
-		clock-names = "csi_mclk";
-		assigned-clocks = <&clk IMX8MM_CLK_CLKO1>;
-		assigned-clock-parents = <&clk IMX8MM_CLK_24M>;
-		assigned-clock-rates = <24000000>;
-		csi_id = <0>;
-		pwn-gpios = <&gpio1 7 GPIO_ACTIVE_HIGH>;
-		mclk = <24000000>;
-		mclk_source = <0>;
-		port {
-			ov5640_mipi1_ep: endpoint {
-				remote-endpoint = <&mipi1_sensor_ep>;
-			};
-		};
-	};
 };
 
 &lcdif {
        status = "okay";
-};
-
-&mipi_csi_1 {
-	status = "okay";
-	port {
-		#address-cells = <1>;
-		#size-cells = <0>;
-
-		mipi1_sensor_ep: endpoint@1 {
-			reg = <1>;
-			remote-endpoint = <&ov5640_mipi1_ep>;
-			data-lanes = <2>;
-			csis-hs-settle = <13>;
-			csis-clk-settle = <2>;
-			csis-wclk;
-		};
-
-		csi1_mipi_ep: endpoint@2 {
-			reg = <2>;
-			remote-endpoint = <&csi1_ep>;
-		};
-	};
 };
 
 &micfil {
@@ -551,8 +498,8 @@
        status = "okay";
 
        port@1 {
-               dsim_to_adv7535: endpoint {
-                       remote-endpoint = <&adv7535_from_dsim>;
+               dsim_to_lt9211c: endpoint {
+                       remote-endpoint = <&lt9211c_from_dsim>;
 			attach-bridge;
                };
        };
@@ -761,18 +708,6 @@
 		>;
 	};
 
-	pinctrl_csi_pwn: csi_pwn_grp {
-		fsl,pins = <
-			MX8MM_IOMUXC_GPIO1_IO07_GPIO1_IO7		0x19
-		>;
-	};
-
-	pinctrl_csi_rst: csi_rst_grp {
-		fsl,pins = <
-			MX8MM_IOMUXC_GPIO1_IO06_GPIO1_IO6		0x19
-			MX8MM_IOMUXC_GPIO1_IO14_CCMSRCGPCMIX_CLKO1	0x59
-		>;
-	};
 
 	pinctrl_ecspi2: ecspi2grp {
 		fsl,pins = <
@@ -840,22 +775,18 @@
 		>;
 	};
 
-	pinctrl_i2c2_synaptics_dsx_io: synaptics_dsx_iogrp {
-		fsl,pins = <
-			MX8MM_IOMUXC_GPIO1_IO09_GPIO1_IO9               0x19    /* Touch int */
-		>;
-	};
+        pinctrl_dsi_rst: dsi_rst_grp {
+                fsl,pins = <
+                        MX8MM_IOMUXC_GPIO1_IO07_GPIO1_IO7               0x19
+                        MX8MM_IOMUXC_GPIO1_IO14_CCMSRCGPCMIX_CLKO1      0x59
+                        MX8MM_IOMUXC_GPIO1_IO08_GPIO1_IO8               0x16
+                >;
+        };
 
 	pinctrl_i2c3: i2c3grp {
 		fsl,pins = <
 			MX8MM_IOMUXC_I2C3_SCL_I2C3_SCL			0x400001c3
 			MX8MM_IOMUXC_I2C3_SDA_I2C3_SDA			0x400001c3
-		>;
-	};
-
-	pinctrl_mipi_dsi_en: mipi_dsi_en {
-		fsl,pins = <
-			MX8MM_IOMUXC_GPIO1_IO08_GPIO1_IO8		0x16
 		>;
 	};
 
