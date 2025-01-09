@@ -92,6 +92,7 @@
 		brightness-levels = <0 255>;
 		num-interpolated-steps = <255>;
 		default-brightness-level = <250>;
+		status = "okay";
 	};
 
 	ir-receiver {
@@ -695,6 +696,7 @@
 &pwm1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_backlight>;
+	status = "okay";
 };
 
 &gpu {
